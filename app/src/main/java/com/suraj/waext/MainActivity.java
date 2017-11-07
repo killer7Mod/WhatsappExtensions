@@ -1,9 +1,11 @@
 package com.suraj.waext;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -11,13 +13,19 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.Spinner;
-import android.widget.Toast;
+
+import java.io.File;
+import java.util.HashSet;
 
 
 public class MainActivity extends AppCompatActivity {
     private static final String PACKAGE_NAME = "com.suraj.waext";
+
+    private static boolean isWaitingForLock = false;
+
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor;
+    private UnlockReceiver unlockReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,8 +35,10 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        sharedPreferences = getSharedPreferences("myprefs", 1);
-        editor = sharedPreferences.edit();
+        sharedPreferences = Utils.getSharedPreferences(this);
+        editor = Utils.getEditor(this);
+
+        unlockReceiver = new UnlockReceiver();
 
         setupLockUI();
         setupReminderUI();
@@ -44,11 +54,15 @@ public class MainActivity extends AppCompatActivity {
         CheckBox checkBoxHideTabs = (CheckBox) findViewById(R.id.chkboxhidetabs);
         CheckBox checkBoxReplaceCallButton = (CheckBox) findViewById(R.id.chkboxreplacecallbtn);
         CheckBox checkBoxBlackTicks = (CheckBox) findViewById(R.id.chkboxblackticks);
+        CheckBox checkBoxHideStatusTab = (CheckBox) findViewById(R.id.chkboxHideStatusTab);
+        CheckBox checkBoxHideToast = (CheckBox) findViewById(R.id.chkboxHideToast);
 
-        setUpCheckBox(checkBoxHideCamera, "hideCamera", false, "", false, "");
-        setUpCheckBox(checkBoxHideTabs, "hideTabs", true, getApplicationContext().getString(R.string.req_restart), true, getApplicationContext().getString(R.string.req_restart));
-        setUpCheckBox(checkBoxReplaceCallButton, "replaceCallButton", false, "", false, "");
-        setUpCheckBox(checkBoxBlackTicks, "showBlackTicks", true, getApplicationContext().getString(R.string.req_restart), true, getApplicationContext().getString(R.string.req_restart));
+        Utils.setUpCheckBox(this, checkBoxHideCamera, "hideCamera", false, "", false, "");
+        Utils.setUpCheckBox(this, checkBoxHideTabs, "hideTabs", true, getApplicationContext().getString(R.string.req_restart), true, getApplicationContext().getString(R.string.req_restart));
+        Utils.setUpCheckBox(this, checkBoxReplaceCallButton, "replaceCallButton", false, "", false, "");
+        Utils.setUpCheckBox(this, checkBoxBlackTicks, "showBlackTicks", true, getApplicationContext().getString(R.string.req_restart), true, getApplicationContext().getString(R.string.req_restart));
+        Utils.setUpCheckBox(this, checkBoxHideStatusTab, "hideStatusTab", true, getApplicationContext().getString(R.string.req_restart), true, getApplicationContext().getString(R.string.req_restart));
+        Utils.setUpCheckBox(this, checkBoxHideToast, "hideToast", false, "", false, "");
 
         Spinner spinSingleClickActions = (Spinner) findViewById(R.id.spinsingleclickactions);
         spinSingleClickActions.setSelection(sharedPreferences.getInt("oneClickAction", 3));
@@ -66,8 +80,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //setUpCheckBox(checkBoxClickToReply, "enableClickToReply");
-
 
     }
 
@@ -77,10 +89,11 @@ public class MainActivity extends AppCompatActivity {
         final CheckBox checkBoxReadReports = (CheckBox) findViewById(R.id.chkboxreadreceipts);
         final CheckBox checkBoxDeliveryReports = (CheckBox) findViewById(R.id.chkboxdeliveryreports);
 
-        setUpCheckBox(checkBoxSeen, "hideSeen", false, "", true, getApplicationContext().getString(R.string.restore_prefs));
-        setUpCheckBox(checkBoxReadReports, "hideReadReceipts", false, "", false, "");
-        setUpCheckBox(checkBoxDeliveryReports, "hideDeliveryReports", false, "", false, "");
-        setUpCheckBox((CheckBox)findViewById(R.id.chkboxalwaysonline),"alwaysOnline",true,getApplicationContext().getString(R.string.last_seen_hidden),false,"");
+        Utils.setUpCheckBox(this, checkBoxSeen, "hideSeen", false, "", true, getApplicationContext().getString(R.string.restore_prefs));
+        Utils.setUpCheckBox(this, checkBoxReadReports, "hideReadReceipts", false, "", false, "");
+        Utils.setUpCheckBox(this, checkBoxDeliveryReports, "hideDeliveryReports", false, "", false, "");
+        Utils.setUpCheckBox(this, (CheckBox) findViewById(R.id.chkboxalwaysonline), "alwaysOnline", true, getApplicationContext().getString(R.string.last_seen_hidden), false, "");
+        //Utils.setUpCheckBox(this, (CheckBox) findViewById(R.id.chkboxBlockContacts), "blockContacts", false, "", false, "");
 
 
         findViewById(R.id.imgbtnreceiptsetting).setOnClickListener(new View.OnClickListener() {
@@ -89,6 +102,36 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, WhiteListActivity.class));
             }
         });
+
+        findViewById(R.id.imgbtnblocksetting).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, BlockedContactsActivity.class));
+            }
+        });
+
+        final CheckBox checkBoxBlockedContacts = (CheckBox) findViewById(R.id.chkboxBlockContacts);
+        checkBoxBlockedContacts.setChecked(sharedPreferences.getBoolean("blockContacts", false));
+
+        checkBoxBlockedContacts.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                editor.putBoolean("blockContacts", checkBoxBlockedContacts.isChecked());
+                editor.apply();
+
+                final HashSet<String> blockedContactsSet = new HashSet<>(sharedPreferences.getStringSet("blockedContactList", new HashSet<String>()));
+                (new Thread() {
+                    @Override
+                    public void run() {
+                        for (String value : blockedContactsSet) {
+                            WhatsAppDatabaseHelper.clearNullItemsFromMessages(value + "@g.us");
+                            WhatsAppDatabaseHelper.clearNullItemsFromMessages(value + "@s.whatsapp.net");
+                        }
+                    }
+                }).start();
+            }
+        });
+
 
     }
 
@@ -122,9 +165,9 @@ public class MainActivity extends AppCompatActivity {
 
         );
 
-        setUpCheckBox((CheckBox)findViewById(R.id.chkboxHideNotifs),"hideNotifs",false,"",false,"");
-        setUpCheckBox((CheckBox)findViewById(R.id.chkboxLockWAWeb),"lockWAWeb",false,"",false,"");
-
+        setUpProtectedCheckBox((CheckBox) findViewById(R.id.chkboxHideNotifs), "hideNotifs", false, "", false, "");
+        setUpProtectedCheckBox((CheckBox) findViewById(R.id.chkboxLockWAWeb), "lockWAWeb", false, "", false, "");
+        setUpProtectedCheckBox((CheckBox) findViewById(R.id.chkboxLockArchived), "lockArchived", false, "", false, "");
     }
 
 
@@ -185,13 +228,11 @@ public class MainActivity extends AppCompatActivity {
 
         final CheckBox checkBox = (CheckBox) (findViewById(R.id.chkboxhighlight));
 
-        setUpCheckBox(checkBox, "enableHighlight", false, "", false, "");
+        Utils.setUpCheckBox(this, checkBox, "enableHighlight", false, "", false, "");
 
     }
 
-    private void setUpCheckBox(final CheckBox checkBox, final String prefname, final boolean onToast, final String onMessage, final boolean offToast, final String offMessage) {
-
-
+    private void setUpProtectedCheckBox(final CheckBox checkBox, final String prefname, final boolean onToast, final String onMessage, final boolean offToast, final String offMessage) {
         if (sharedPreferences.getBoolean(prefname, false))
             checkBox.setChecked(true);
         else
@@ -200,34 +241,62 @@ public class MainActivity extends AppCompatActivity {
         checkBox.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Intent lockIntent = new Intent(MainActivity.this, LockActivity.class);
 
-                long t = SystemClock.elapsedRealtime();
+                lockIntent.putExtra("hasPref", true);
+                Bundle extras = new Bundle();
+                extras.putBoolean(prefname, checkBox.isChecked());
+                lockIntent.putExtras(extras);
 
-                /*if (t < 2 * 60 * 1000) {
-                    checkBox.setChecked(!checkBox.isChecked());
-                    Toast.makeText(getApplicationContext(), R.string.wait_message, Toast.LENGTH_SHORT).show();
-                    return;
-                }*/
+                MainActivity.isWaitingForLock = true;
 
-                if (checkBox.isChecked()) {
-                    editor.putBoolean(prefname, true);
-
-                    if (onToast) {
-                        Toast.makeText(MainActivity.this, onMessage, Toast.LENGTH_SHORT).show();
-                    }
-
-                } else {
-                    editor.putBoolean(prefname, false);
-
-                    if (offToast) {
-                        Toast.makeText(MainActivity.this, offMessage, Toast.LENGTH_SHORT).show();
-                    }
-                }
-
-                editor.apply();
+                checkBox.setChecked(!checkBox.isChecked());
+                unlockReceiver.setCheckBox(v);
+                startActivity(lockIntent);
 
             }
         });
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MainActivity.isWaitingForLock = false;
+        this.registerReceiver(unlockReceiver, new IntentFilter(ExtModule.UNLOCK_INTENT));
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        if (!MainActivity.isWaitingForLock) {
+            this.unregisterReceiver(unlockReceiver);
+        }
+
+        Utils.setPreferencesRW(this);
+
+    }
+
+    class UnlockReceiver extends BroadcastReceiver {
+        private CheckBox checkBox;
+
+        public void setCheckBox(View view) {
+            if (view instanceof CheckBox)
+                this.checkBox = (CheckBox) view;
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Bundle bundle = intent.getBundleExtra("prefs");
+            if (bundle != null) {
+                for (String k : bundle.keySet()) {
+                    if (bundle.get(k) instanceof Boolean) {
+                        editor.putBoolean(k, bundle.getBoolean(k));
+                        checkBox.setChecked(bundle.getBoolean(k));
+                    }
+                }
+                editor.apply();
+            }
+        }
+    }
 }

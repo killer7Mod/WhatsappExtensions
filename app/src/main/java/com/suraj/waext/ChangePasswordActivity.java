@@ -12,6 +12,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
+
 public class ChangePasswordActivity extends AppCompatActivity {
 
     private int count = 0;
@@ -35,7 +37,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
         setEditTextListeners();
         setButtonListeners();
 
-        sharedPreferences = getSharedPreferences("myprefs", 1);
+        sharedPreferences = Utils.getSharedPreferences(this);
 
         byte[] defaultEncoded = Base64.encode("1234".getBytes(), 0);
 
@@ -112,7 +114,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
 
                 }else if(count==2) {
                     if (etPassword.getText().toString().equals(firstPassword)) {
-                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        SharedPreferences.Editor editor = Utils.getEditor(ChangePasswordActivity.this);
                         String encodedString = new String(Base64.encode(firstPassword.getBytes(), 0));
                         editor.putString("password", encodedString);
                         editor.apply();
@@ -137,6 +139,12 @@ public class ChangePasswordActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Utils.setPreferencesRW(this);
     }
 
 }

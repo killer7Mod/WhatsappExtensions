@@ -33,6 +33,8 @@
 
     <!-- do not translate this string. see faq section on XDA thread -->
     <string name="menuitem_call">chiama</string>
+    <string name="voice_call_string">Voice call</string>
+
 
     <string name="menuitem_hide">Nascondi</string>
     <string name="menuitem_unhide">Mostra</string>
@@ -120,12 +122,35 @@
     <string name="last_seen_hidden">Non eliminare WhatsApp dalle App recenti.</string>
     <string name="restore_prefs">Ripristina le tue preferenze privacy in WhatsApp.</string>
 
-    <!-- Translate these for 4.6 -->
     <string name="listtype_black">BlackList</string>
     <string name="listtype_white">WhiteList</string>
-    <string name="whitelistinfo">Use this as %1$s</string>
+    <string name="whitelistinfo">Usa questo come %1$s</string>
     <string name="hide_notifs">Nascondi notifiche per i contatti bloccati</string>
     <string name="lock_whatsapp_web">Blocca WhatsApp Web</string>
-    <string name="sqliteMissing">Sqlite3 may be missing. Please refer FAQ on XDA</string>
-    <!-- Translate end for v4.6 -->
+    <string name="sqliteMissing">Potrebbe mancare Sqlite3. Si prega di fare riferimento alle FAQ su XDA</string>
+
+    <!-- not translated for > 4.6 -->
+    <string name="replace_ticks">Mostra doppia spunta nera invece che blu</string>
+    <string name="picker_activity_text">Scegli un contatto</string>
+    <string name="search_hint">Cerca un contatto</string>
+    <string name="lock_archived">Blocca chat Archiviate</string>
+    <string name="enable_rr_during_chat">Invia Conferme di Lettura durante la chat</string>
+    <string name="backup">Backup</string>
+    <string name="restore">Ripristino</string>
+    <!-- end -->
+
+    <string name="stats">Statistiche</string>
+    <string name="messagesReceived">Messaggi Ricevuti</string>
+    <string name="messagesSent">Messaggi Inviati</string>
+    <string name="messageTotal">Totale</string>
+
+    <!-- this is date. for example from 8/12/2016 to 17/01/2017 -->
+    <string name="messagesTimespan">Da %1$s a %2$s</string>
+    <string name="title_activity_stats">Statistiche</string>
+    <string name="hide_status_tab">Nascondi Tab Stato</string>
+    <string name="block_contacts">Nascondi i messaggi permanentemente</string>
+
+    <string name="hide_toast_message">Nascondi avvisi</string>
+
+
 </resources>

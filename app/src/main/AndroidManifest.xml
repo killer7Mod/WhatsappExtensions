@@ -73,7 +73,18 @@
         <activity
             android:name=".CropActivity"
             android:exported="true" />
-        <activity android:name=".WhiteListActivity"></activity>
+        <activity android:name=".WhiteListActivity" />
+        <activity
+            android:name=".WhatsAppContactPickerActivity"
+            android:label="@string/picker_activity_text" />
+        <activity
+            android:name=".BackupManagerActivity"
+            android:exported="true" />
+        <activity
+            android:name=".StatsActivity"
+            android:exported="true"
+            android:label="@string/title_activity_stats" />
+        <activity android:name=".BlockedContactsActivity"></activity>
     </application>
 
 </manifest>

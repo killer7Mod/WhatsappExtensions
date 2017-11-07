@@ -10,7 +10,7 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:padding="@dimen/activity_horizontal_margin">
 
         <TextView
@@ -29,36 +29,55 @@
             android:layout_alignStart="@id/tvlockprefs"
             android:layout_below="@id/tvlockprefs"
             android:layout_marginBottom="5dp"
+            android:layout_marginLeft="7dp"
+            android:layout_marginStart="7dp"
             android:text="@string/lock_text"
             android:textSize="14sp" />
 
-        <TextView
-            android:id="@+id/tvlockafter"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/lllockafter"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignLeft="@id/tvlockprefs"
             android:layout_alignStart="@id/tvlockprefs"
             android:layout_below="@id/tvlockdesc"
-            android:layout_marginTop="8dp"
-            android:text="@string/lock_after" />
+            android:orientation="horizontal"
+            android:weightSum="3">
 
-        <Spinner
-            android:id="@+id/spinminutes"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBaseline="@id/tvlockafter"
-            android:layout_centerHorizontal="true"
-            android:layout_marginLeft="5dp"
-            android:entries="@array/minutelist" />
+            <TextView
+                android:id="@+id/tvlockafter"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="7dp"
+                android:layout_marginStart="7dp"
+                android:layout_weight="1"
+                android:text="@string/lock_after" />
+            
+            <Spinner
+                android:id="@+id/spinminutes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:dropDownWidth="wrap_content"
+                android:entries="@array/minutelist" />
 
-        <Button
-            android:id="@+id/btnchangepass"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_alignBaseline="@id/spinminutes"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:background="@mipmap/ic_settings_black_24dp" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="end">
+
+                <Button
+                    android:id="@+id/btnchangepass"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:background="@mipmap/ic_settings_black_24dp" />
+
+            </RelativeLayout>
+
+
+        </LinearLayout>
+
 
         <CheckBox
             android:id="@+id/chkboxHideNotifs"
@@ -66,7 +85,7 @@
             android:layout_height="wrap_content"
             android:layout_alignLeft="@id/tvlockprefs"
             android:layout_alignStart="@id/tvlockprefs"
-            android:layout_below="@id/btnchangepass"
+            android:layout_below="@id/lllockafter"
             android:layout_marginTop="8dp"
             android:text="@string/hide_notifs" />
 
@@ -80,11 +99,21 @@
             android:layout_marginTop="5dp"
             android:text="@string/lock_whatsapp_web" />
 
+        <CheckBox
+            android:id="@+id/chkboxLockArchived"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@id/tvlockprefs"
+            android:layout_alignStart="@id/tvlockprefs"
+            android:layout_below="@id/chkboxLockWAWeb"
+            android:layout_marginTop="5dp"
+            android:text="@string/lock_archived" />
+
         <TextView
             android:id="@+id/tvservicestatus"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/chkboxLockWAWeb"
+            android:layout_below="@id/chkboxLockArchived"
             android:layout_margin="10dp"
             android:text="@string/reminder_prefs"
             android:textSize="22sp" />
@@ -107,6 +136,8 @@
             android:layout_alignStart="@id/tvservicestatus"
             android:layout_below="@id/chkboxservicestate"
             android:layout_marginBottom="10dp"
+            android:layout_marginLeft="7dp"
+            android:layout_marginStart="7dp"
             android:text="@string/reminder_text"
             android:textSize="14sp" />
 
@@ -147,6 +178,8 @@
             android:layout_alignStart="@id/tvhighlight"
             android:layout_below="@id/chkboxhighlight"
             android:layout_marginBottom="20dp"
+            android:layout_marginLeft="7dp"
+            android:layout_marginStart="7dp"
             android:layout_marginTop="10dp"
             android:text="@string/highlight_individual" />
 
@@ -218,28 +251,38 @@
             android:layout_alignLeft="@id/tvhighlight"
             android:layout_alignStart="@id/tvhighlight"
             android:layout_below="@id/chkboxdeliveryreports"
-            android:layout_marginBottom="10dp"
+            android:layout_marginBottom="5dp"
             android:layout_marginTop="5dp"
             android:text="@string/always_online" />
+
+        <CheckBox
+            android:id="@+id/chkboxBlockContacts"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@id/tvhighlight"
+            android:layout_alignStart="@id/tvhighlight"
+            android:layout_below="@id/chkboxalwaysonline"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="5dp"
+            android:text="@string/block_contacts" />
+
+        <ImageButton
+            android:id="@+id/imgbtnblocksetting"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_alignBottom="@id/chkboxBlockContacts"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:background="@mipmap/ic_settings_black_24dp" />
 
         <TextView
             android:id="@+id/tvlayoutprefs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/chkboxalwaysonline"
+            android:layout_below="@id/chkboxBlockContacts"
             android:layout_margin="10dp"
             android:text="@string/layout_prefs"
             android:textSize="22sp" />
-
-        <CheckBox
-            android:id="@+id/chkboxhidecamera"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignLeft="@id/tvlockprefs"
-            android:layout_alignStart="@id/tvlockprefs"
-            android:layout_below="@id/tvlayoutprefs"
-            android:layout_marginTop="5dp"
-            android:text="@string/hide_camera_btn" />
 
         <CheckBox
             android:id="@+id/chkboxhidetabs"
@@ -247,9 +290,42 @@
             android:layout_height="wrap_content"
             android:layout_alignLeft="@id/tvlockprefs"
             android:layout_alignStart="@id/tvlockprefs"
-            android:layout_below="@id/chkboxhidecamera"
+            android:layout_below="@id/tvlayoutprefs"
             android:layout_marginTop="5dp"
             android:text="@string/hide_tabs_btn" />
+
+        <CheckBox
+            android:id="@+id/chkboxHideToast"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@id/tvlockprefs"
+            android:layout_alignStart="@id/tvlockprefs"
+            android:layout_below="@id/chkboxhidetabs"
+            android:layout_marginTop="5dp"
+            android:text="@string/hide_toast_message" />
+
+        <CheckBox
+            android:id="@+id/chkboxHideStatusTab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@id/tvlockprefs"
+            android:layout_alignStart="@id/tvlockprefs"
+            android:layout_below="@id/chkboxHideToast"
+            android:layout_marginTop="5dp"
+            android:text="@string/hide_status_tab" />
+
+
+        <CheckBox
+            android:id="@+id/chkboxhidecamera"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@id/tvlockprefs"
+            android:layout_alignStart="@id/tvlockprefs"
+            android:layout_below="@id/chkboxHideStatusTab"
+            android:layout_marginTop="5dp"
+            android:text="@string/hide_camera_btn" />
+
+
 
 
         <CheckBox
@@ -258,7 +334,7 @@
             android:layout_height="wrap_content"
             android:layout_alignLeft="@id/tvlockprefs"
             android:layout_alignStart="@id/tvlockprefs"
-            android:layout_below="@id/chkboxhidetabs"
+            android:layout_below="@id/chkboxhidecamera"
             android:layout_marginTop="5dp"
             android:text="@string/replace_call_btn" />
 
@@ -270,7 +346,8 @@
             android:layout_alignStart="@id/chkboxreplacecallbtn"
             android:layout_below="@id/chkboxreplacecallbtn"
             android:layout_marginTop="5dp"
-            android:text="Show black ticks instead of blue" />
+            android:text="@string/replace_ticks" />
+
 
         <TextView
             android:id="@+id/tvsingleclickaction"

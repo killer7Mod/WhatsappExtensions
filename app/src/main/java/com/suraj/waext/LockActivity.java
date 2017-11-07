@@ -14,6 +14,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import java.io.File;
+
 public class LockActivity extends AppCompatActivity {
     public static final String PACKAGE_NAME = "com.suraj.waext";
     private EditText etpassword;
@@ -34,7 +36,7 @@ public class LockActivity extends AppCompatActivity {
 
         setButtonListeners();
 
-        SharedPreferences sharedPreferences = getSharedPreferences("myprefs", 1);
+        SharedPreferences sharedPreferences = Utils.getSharedPreferences(this);
 
         byte[] defaultEncoded = Base64.encode("1234".getBytes(), 0);
 
@@ -123,11 +125,27 @@ public class LockActivity extends AppCompatActivity {
         intent.putExtra("showLockScreen", false);
         intent.putExtra("firstTime", true);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        if(getIntent().getBooleanExtra("hasPref",false)){
+            getIntent().removeExtra("hasPref");
+            Bundle bundle = getIntent().getExtras();
+
+            if(bundle!=null){
+                intent.putExtra("prefs",bundle);
+            }
+        }
+
         sendBroadcast(intent);
     }
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Utils.setPreferencesRW(this);
     }
 }

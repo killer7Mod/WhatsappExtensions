@@ -9,6 +9,8 @@ import android.widget.Toast;
 
 import com.rarepebble.colorpicker.ColorPickerView;
 
+import java.io.File;
+
 public class ColorChooserActivity extends AppCompatActivity {
 
     @Override
@@ -31,7 +33,7 @@ public class ColorChooserActivity extends AppCompatActivity {
              finish();
         }
 
-        SharedPreferences sharedPreferences = getSharedPreferences("myprefs", 1);
+        SharedPreferences sharedPreferences = Utils.getSharedPreferences(this);
 
         final ColorPickerView picker = (ColorPickerView) findViewById(R.id.colorPicker);
         picker.setColor(sharedPreferences.getInt(which, Color.GRAY));
@@ -55,19 +57,16 @@ public class ColorChooserActivity extends AppCompatActivity {
     }
 
     public void updateHighlightColor(String which,int color) {
-        SharedPreferences sharedPreferences = getSharedPreferences("myprefs", 1);
-        final SharedPreferences.Editor editor = sharedPreferences.edit();
+        final SharedPreferences.Editor editor = Utils.getEditor(this);
 
         editor.putInt(which, color);
         editor.commit();
     }
 
-    public void updateIndividualColor(int color) {
-        SharedPreferences sharedPreferences = getSharedPreferences("myprefs", 1);
-        final SharedPreferences.Editor editor = sharedPreferences.edit();
-
-        editor.putInt("highlightColor", color);
-        editor.commit();
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Utils.setPreferencesRW(this);
     }
 
 }
